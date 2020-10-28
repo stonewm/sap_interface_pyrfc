@@ -1,20 +1,13 @@
+from SAP import sap_system
 import pyrfc
 import tablib
 
-conn_params = {
-    "user": "stone",
-    "passwd": "w123456",
-    "ashost": "192.168.44.100",
-    "sysnr": "00",
-    "lang": "EN",
-    "client": "001"
-}
-
-def get_ac_balances(glaccount, fiscal_year):
-    conn = pyrfc.Connection(**conn_params)
+def get_ac_balances(cocd, glaccount, fiscal_year):
+    logon_params = sap_system.conn_params
+    conn = pyrfc.Connection(**logon_params)
 
     result = conn.call("BAPI_GL_ACC_GETPERIODBALANCES", 
-                        COMPANYCODE = "Z900",  
+                        COMPANYCODE = cocd,  
                         GLACCT = glaccount,
                         FISCALYEAR = fiscal_year,
                         CURRENCYTYPE = "10")   
