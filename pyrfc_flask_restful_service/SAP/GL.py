@@ -1,8 +1,5 @@
 from SAP import sap_system
 import pyrfc
-import tablib
-import json
-
 
 def get_sap_connection():
     logon_params = sap_system.sap_conn_params
@@ -27,32 +24,28 @@ class SAPGL(object):
                            GLACCT=g_laccount,
                            FISCALYEAR=fiscal_year,
                            CURRENCYTYPE="10")
-
-        data = tablib.Dataset()
-        data.dict = result['ACCOUNT_BALANCES']
-
-        return data.json
+        return result['ACCOUNT_BALANCES']
 
     def get_all_acc_balances(self, cocd, fiscal_year):
         """
         获取所有会计科目在某一会计年度内按月份的发生额和余额
         """
 
-        # result list for account balances
+        # results for account balances
         gl_acc_balances = []
 
         accounts = self.get_gl_acc_list(cocd, '1')
-        data = tablib.Dataset()
-        data.json = accounts
 
+        # 获取所有会计科目
         gl_account_list = []
-        for item in data.dict:
+        for item in accounts:
             gl_account_list.append(item.get('GL_ACCOUNT'))
 
+        # 遍历会计科目，获取每一个科目的发生额和余额
         for glacc in gl_account_list:
-            yearly_balances = json.loads(self.get_ac_balances(cocd, glacc, fiscal_year))
+            balances_in_year = self.get_ac_balances(cocd, glacc, fiscal_year)
 
-            for period_balance in yearly_balances:
+            for period_balance in balances_in_year:
                 gl_acc_balances.append(period_balance)
 
         return gl_acc_balances
@@ -67,8 +60,4 @@ class SAPGL(object):
         result = conn.call("BAPI_GL_ACC_GETLIST",
                            COMPANYCODE=cocd,
                            LANGUAGE=lang)
-
-        data = tablib.Dataset()
-        data.dict = result['ACCOUNT_LIST']
-
-        return data.json
+        return result['ACCOUNT_LIST']

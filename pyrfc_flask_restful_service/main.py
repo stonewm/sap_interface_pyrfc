@@ -13,12 +13,9 @@ def index():
 def get_acc_balances(cocd, account, year):
    
     sap_gl = SAPGL();
-    ac_balances = sap_gl.get_ac_balances(str.upper(cocd), account, year)
+    acc_balances = sap_gl.get_ac_balances(str.upper(cocd), account, year)
 
-    resp = make_response(ac_balances, 200)
-    resp.headers['Content-Type'] = 'application/json'    
-
-    return resp
+    return jsonify(acc_balances)
 
 
 @app.route("/acclist/<cocd>")
@@ -27,10 +24,7 @@ def get_gl_acc_list(cocd):
     sap_gl = SAPGL();
     gl_list = sap_gl.get_gl_acc_list(str.upper(cocd), '1')
 
-    resp = make_response(gl_list, 200)
-    resp.headers['Content-Type'] = 'application/json'    
-
-    return resp
+    return jsonify(gl_list)
 
 
 @app.route('/balances/<cocd>/<year>')
