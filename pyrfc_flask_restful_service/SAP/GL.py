@@ -5,7 +5,7 @@ import json
 
 
 def get_sap_connection():
-    logon_params = sap_system.conn_params
+    logon_params = sap_system.sap_conn_params
     conn = pyrfc.Connection(**logon_params)
 
     return conn

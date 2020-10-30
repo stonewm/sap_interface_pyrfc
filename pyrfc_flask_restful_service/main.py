@@ -9,14 +9,11 @@ def index():
     return "index page"
 
 
-@app.route("/accbal")
-def get_acc_balances():
-    cocd = request.args.get('cocd')
-    account = request.args.get('account')
-    year = request.args.get('year')
-
+@app.route("/accbal/<cocd>/<account>/<year>")
+def get_acc_balances(cocd, account, year):
+   
     sap_gl = SAPGL();
-    ac_balances = sap_gl.get_ac_balances(cocd, account, year)
+    ac_balances = sap_gl.get_ac_balances(str.upper(cocd), account, year)
 
     resp = make_response(ac_balances, 200)
     resp.headers['Content-Type'] = 'application/json'    
@@ -24,13 +21,11 @@ def get_acc_balances():
     return resp
 
 
-@app.route("/acclist")
-def get_gl_acc_list():
-    cocd = request.args.get('cocd')
-    lang = request.args.get('lang')
+@app.route("/acclist/<cocd>")
+def get_gl_acc_list(cocd):
 
     sap_gl = SAPGL();
-    gl_list = sap_gl.get_gl_acc_list(cocd, lang)
+    gl_list = sap_gl.get_gl_acc_list(str.upper(cocd), '1')
 
     resp = make_response(gl_list, 200)
     resp.headers['Content-Type'] = 'application/json'    
@@ -38,13 +33,10 @@ def get_gl_acc_list():
     return resp
 
 
-@app.route('/balances')
-def get_all_acc_balances():
-    cocd = request.args.get('cocd')
-    fiscal_year = request.args.get('year')
-
+@app.route('/balances/<cocd>/<year>')
+def get_all_acc_balances(cocd, year):  
     sap_gl = SAPGL();
-    balances = sap_gl.get_all_acc_balances(cocd, fiscal_year)
+    balances = sap_gl.get_all_acc_balances(str.upper(cocd), year)
     return jsonify(balances)
 
 
