@@ -11,16 +11,14 @@ def index():
 
 @app.route("/accbal/<cocd>/<account>/<year>")
 def get_acc_balances(cocd, account, year):
-   
     sap_gl = SAPGL();
-    acc_balances = sap_gl.get_ac_balances(str.upper(cocd), account, year)
+    acc_balances = sap_gl.get_acc_balances(str.upper(cocd), account, year)
 
     return jsonify(acc_balances)
 
 
 @app.route("/acclist/<cocd>")
 def get_gl_acc_list(cocd):
-
     sap_gl = SAPGL();
     gl_list = sap_gl.get_gl_acc_list(str.upper(cocd), '1')
 

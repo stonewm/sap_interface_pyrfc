@@ -12,16 +12,15 @@ class SAPGL(object):
     def __init__(self) -> None:
         self.sap_connection = get_sap_connection()
 
-    def get_ac_balances(self, cocd, g_laccount, fiscal_year):
+    def get_acc_balances(self, cocd, gl_account, fiscal_year):
         """
         获取会计科目在某一会计年度内按月份的发生额和余额
         """
 
         conn = self.sap_connection
-
         result = conn.call("BAPI_GL_ACC_GETPERIODBALANCES",
                            COMPANYCODE=cocd,
-                           GLACCT=g_laccount,
+                           GLACCT=gl_account,
                            FISCALYEAR=fiscal_year,
                            CURRENCYTYPE="10")
         return result['ACCOUNT_BALANCES']
@@ -34,16 +33,13 @@ class SAPGL(object):
         # results for account balances
         gl_acc_balances = []
 
-        accounts = self.get_gl_acc_list(cocd, '1')
-
         # 获取所有会计科目
-        gl_account_list = []
-        for item in accounts:
-            gl_account_list.append(item.get('GL_ACCOUNT'))
+        accounts = self.get_gl_acc_list(cocd, '1') # 1表示简体中文
 
         # 遍历会计科目，获取每一个科目的发生额和余额
-        for glacc in gl_account_list:
-            balances_in_year = self.get_ac_balances(cocd, glacc, fiscal_year)
+        for item in accounts:
+            account = item.get('GL_ACCOUNT')
+            balances_in_year = self.get_acc_balances(cocd, account, fiscal_year)
 
             for period_balance in balances_in_year:
                 gl_acc_balances.append(period_balance)
@@ -56,7 +52,6 @@ class SAPGL(object):
         """
 
         conn = self.sap_connection
-
         result = conn.call("BAPI_GL_ACC_GETLIST",
                            COMPANYCODE=cocd,
                            LANGUAGE=lang)
