@@ -1,11 +1,4 @@
-from SAP import sap_system
-import pyrfc
-
-def get_sap_connection():
-    logon_params = sap_system.sap_conn_params
-    conn = pyrfc.Connection(**logon_params)
-
-    return conn
+from SAP.sap_systems import get_sap_connection
 
 
 class SAPGL(object):
@@ -34,7 +27,7 @@ class SAPGL(object):
         gl_acc_balances = []
 
         # 获取所有会计科目
-        accounts = self.get_gl_acc_list(cocd, '1') # 1表示简体中文
+        accounts = self.get_gl_acc_list(cocd, '1')  # 1表示简体中文
 
         # 遍历会计科目，获取每一个科目的发生额和余额
         for item in accounts:
