@@ -11,7 +11,6 @@ D01 = {
     "client": "001"
 }
 
-
 def get_sap_connection():
     logon_params = D01
     conn = pyrfc.Connection(**logon_params)
