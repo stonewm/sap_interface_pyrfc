@@ -1,9 +1,9 @@
-from SAP.sap_systems import get_sap_connection
+from SAP.sap_systems import D01, current_sap_connection
 
 
 class SAPGL(object):
     def __init__(self) -> None:
-        self.sap_connection = get_sap_connection()
+        self.sap_connection = current_sap_connection()
 
     def get_acc_balances(self, cocd, gl_account, fiscal_year):
         """

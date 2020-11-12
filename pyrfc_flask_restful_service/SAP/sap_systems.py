@@ -1,7 +1,6 @@
 import pyrfc
 
-# 登录到SAP系统的参数
-# Connect to D01 system
+# D01配置连接到D01系统
 D01 = {
     "user": "stone",
     "passwd": "w123456",
@@ -11,8 +10,11 @@ D01 = {
     "client": "001"
 }
 
-def get_sap_connection():
-    logon_params = D01
-    conn = pyrfc.Connection(**logon_params)
+def get_sap_connection(sap_logon_params):
+    conn = pyrfc.Connection(**sap_logon_params)
 
     return conn
+
+
+def current_sap_connection():
+    return get_sap_connection(D01)

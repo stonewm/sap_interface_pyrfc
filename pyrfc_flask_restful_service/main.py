@@ -1,9 +1,10 @@
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, make_response, jsonify
 from SAP.GL import SAPGL
 from SAP.table_info import SAPTableInfo
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] =False
+
 
 @app.route("/")
 def index():
@@ -12,18 +13,26 @@ def index():
 
 @app.route("/accbal/<cocd>/<account>/<year>")
 def get_acc_balances(cocd, account, year):
+   
     sap_gl = SAPGL();
-    acc_balances = sap_gl.get_acc_balances(str.upper(cocd), account, year)
+    ac_balances = sap_gl.get_ac_balances(str.upper(cocd), account, year)
 
-    return jsonify(acc_balances)
+    resp = make_response(ac_balances, 200)
+    resp.headers['Content-Type'] = 'application/json'    
+
+    return resp
 
 
 @app.route("/acclist/<cocd>")
 def get_gl_acc_list(cocd):
+
     sap_gl = SAPGL();
     gl_list = sap_gl.get_gl_acc_list(str.upper(cocd), '1')
 
-    return jsonify(gl_list)
+    resp = make_response(gl_list, 200)
+    resp.headers['Content-Type'] = 'application/json'    
+
+    return resp
 
 
 @app.route('/balances/<cocd>/<year>')
