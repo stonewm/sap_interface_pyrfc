@@ -8,12 +8,13 @@ class SAPTableInfo(object):
     def __init__(self):
         self.sap_connection = current_sap_connection()
 
-    def read_table(self, sap_tablename, delimiter='~', rowcount=200) -> list:
+    def read_table(self, sap_tablename, delimiter='~', rowcount=200, filter_criteria='') -> list:
         """
         读取SAP数据表的内容，返回list(dict)格式的数据
         :param sap_tablename: table name to be queried
         :param delimiter: delimiter will be used
         :param rowcount: row count of data output
+        :param options: filter criteria
         :return: list(dict) of DATA table paramter
         """
         rv = []  # 函数返回值
@@ -26,7 +27,7 @@ class SAPTableInfo(object):
         for idx in range(0, len(field_names), BATCH_COL_COUNT):
             batch_fields = field_names[idx: idx + BATCH_COL_COUNT]
             # 每次获得的partial_table_data为SAP table部分字段的数据
-            batch_fields_data = self.get_table_contents(sap_tablename, batch_fields, delimiter, rowcount)
+            batch_fields_data = self.get_table_contents(sap_tablename, batch_fields, delimiter, rowcount, filter_criteria)
 
             # 将数据整合在一起（纵向存放)
             line_idx = 1  # idx用于记录行号
@@ -80,11 +81,15 @@ class SAPTableInfo(object):
 
         return result['FIELDS']
 
-    def get_table_contents(self, table_name, selected_fields, delimiter, rowcount):
+    def get_table_contents(self, table_name, selected_fields, delimiter, rowcount, filter_criteria=''):
+        options = list()
+        options.append({"TEXT": filter_criteria})
+
         result = self.sap_connection.call('RFC_READ_TABLE',
                                           QUERY_TABLE=table_name,
                                           DELIMITER=delimiter,
                                           FIELDS=selected_fields,
-                                          ROWCOUNT=rowcount)
+                                          ROWCOUNT=rowcount,
+                                          OPTIONS=options)
 
         return result["DATA"]

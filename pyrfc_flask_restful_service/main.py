@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response, jsonify, request
 from SAP.GL import SAPGL
 from SAP.table_info import SAPTableInfo
 
@@ -44,14 +44,20 @@ def get_all_acc_balances(cocd, year):
 
 @app.route('/tabledata/<tablename>/<int:rowcnt>')
 def get_table_data(tablename, rowcnt):
+    options = request.args.get('options')
+
     sap_table = SAPTableInfo()
-    data = sap_table.read_table(tablename, rowcount=rowcnt)
+    if options == None:
+        data = sap_table.read_table(tablename, rowcount=rowcnt)
+    else:
+        data = sap_table.read_table(tablename, rowcount=rowcnt, filter_criteria=options)
     return jsonify(data)
 
 
 @app.route('/tablefields/<tablename>')
 def get_table_fields(tablename):
     sap_table = SAPTableInfo()
+
     fields = sap_table.get_table_fields(tablename)
     return jsonify(fields)
 

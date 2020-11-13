@@ -6,7 +6,7 @@ D01 = {
     "passwd": "w123456",
     "ashost": "192.168.44.100",
     "sysnr": "00",
-    "lang": "EN",
+    "lang": "ZH",
     "client": "001"
 }
 
