@@ -1,6 +1,7 @@
 from flask import Flask, make_response, jsonify, request
 from SAP.GL import SAPGL
 from SAP.table_info import SAPTableInfo
+from SAP.fixed_asset import FixedAsset
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] =False
@@ -60,6 +61,16 @@ def get_table_fields(tablename):
 
     fields = sap_table.get_table_fields(tablename)
     return jsonify(fields)
+    
+
+@app.route('/aa/create', methods=['POST'])
+def create_asset():
+    # payload
+    payload = request.get_json()
+
+    fixed_asset_obj = FixedAsset()
+    rv = fixed_asset_obj.create_asset(payload);
+    return jsonify(rv)
 
 
 if __name__ == "__main__":
