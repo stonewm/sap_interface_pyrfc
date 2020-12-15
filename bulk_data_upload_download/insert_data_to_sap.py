@@ -1,6 +1,6 @@
 from SAP.sap_systems import current_sap_connection
 
-upload_file = "fake-employees.csv"
+upload_file = "fakeemployees.csv"
 batch_count = 1000
 
 def get_data_from_file(batch_max):
@@ -30,7 +30,7 @@ def get_data_from_file(batch_max):
 def insert_employee():
     sap_conn = current_sap_connection()
     for employees in get_data_from_file(batch_count):     
-        rv = sap_conn.call("ZEMP_INSERT", EMPLOYEES=employees)
+        rv = sap_conn.call("ZEMPLOYEE_INSERT", EMPLOYEES=employees)
         print(rv["RET"])
 
 

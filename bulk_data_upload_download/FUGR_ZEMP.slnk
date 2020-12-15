@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FUGR AREA="ZEMP" SPRAS="E" AREAT="Employee CRUD function modules">
+ <functionGroupDocumentation/>
+ <mainprogram NAME="SAPLZEMP" VARCL="X" DBAPL="S" DBNA="D$" SUBC="F" APPL="S" RMAND="001" RLOAD="E" FIXPT="X" LDBNAME="D$S" UCCHECK="X">
+  <textPool/>
+  <source>*******************************************************************
+*   System-defined Include-files.                                 *
+*******************************************************************
+  INCLUDE LZEMPTOP.                          &quot; Global Data
+  INCLUDE LZEMPUXX.                          &quot; Function Modules
+
+*******************************************************************
+*   User-defined Include-files (if necessary).                    *
+*******************************************************************
+* INCLUDE LZEMPF...                          &quot; Subprograms
+* INCLUDE LZEMPO...                          &quot; PBO-Modules
+* INCLUDE LZEMPI...                          &quot; PAI-Modules</source>
+ </mainprogram>
+ <includeprograms>
+  <include NAME="LZEMPTOP" DBAPL="S" DBNA="D$" SUBC="I" APPL="S" RMAND="001" FIXPT="X" LDBNAME="D$S" UCCHECK="X">
+   <include_source>FUNCTION-POOL ZEMP.                         &quot;MESSAGE-ID ..</include_source>
+  </include>
+ </includeprograms>
+ <functionmodules>
+  <functionmodule NAME="ZEMPLOYEE_INSERT" REMOTE="R" STEXT="Employee table insert">
+   <tables PARAMETER="EMPLOYEES" DBSTRUCT="ZEMPLOYEE"/>
+   <tables PARAMETER="RET" DBSTRUCT="LINE"/>
+   <documentation PARAMETER="EMPLOYEES" KIND="P" STEXT="Employees" INDEX=" 001"/>
+   <documentation PARAMETER="RET" KIND="P" STEXT="Line" INDEX=" 002"/>
+   <fm_source>DATA: ls_line LIKE LINE OF ret.
+  DATA: tab_count TYPE i,
+        tab_count_str TYPE string.
+
+  TABLES: zemployee.
+
+  DESCRIBE TABLE employees LINES tab_count.
+  tab_count_str = tab_count.
+
+  MODIFY zemployee FROM TABLE employees[].
+  IF sy-subrc IS INITIAL.
+    COMMIT WORK AND WAIT.
+    CONCATENATE tab_count_str &apos; was created successfully.&apos; INTO ls_line.
+    APPEND ls_line TO ret.
+  ELSE.
+    ROLLBACK WORK.
+  ENDIF.</fm_source>
+   <functionModuleDocumentation/>
+  </functionmodule>
+ </functionmodules>
+</FUGR>
