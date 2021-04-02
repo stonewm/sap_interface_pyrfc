@@ -2,7 +2,7 @@ from faker import Faker
 import random
 
 fake = Faker(locale="zh_CN")
-MAX_ROW = 5000000
+MAX_ROW = 10
 
 def generate_random_info():    
     emp = {

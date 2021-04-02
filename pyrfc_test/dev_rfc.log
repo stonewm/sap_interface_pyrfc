@@ -1,0 +1,13 @@
+
+**** Log file opened at 2021-04-02 13:55:24.827545 UTC+08:00 (ÖÐ¹ú±ê×¼Ê±¼ä), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 7, Compiled on Jan 20 2021 04:58:17
+ CPIC library: 753.2020.10.14 version 3, NI library: 40, Kernel Release: 753 Patch Level 728
+ Current working directory: D:\My Github Repos\sap_interface_pyrfc\pyrfc_test, Program: python
+ Hardware: PC with Windows NT 4x AMD64 Level 6 (Mod 78 Step 3), Operating_system: Windows NT 10.0
+ Hostname: STONEWM-PC, IP address: 192.168.44.1, IPv6 address: fe80::21f8:5b20:b281:961d
+
+2021-04-02 13:55:24.827887 [24368] >> Info entry
+	Did not find config file D:\My Github Repos\sap_interface_pyrfc\pyrfc_test\sapnwrfc.ini.
+2021-04-02 13:55:24.969773 [24368] >> Error entry
+	[Handle: 1848423809168	ConvID: 43532900	Target: sapecc6	SysID: D01	SysNr: 00	User: stone	Mandant: 001	Language: E	Codepage: 4103]
+	RfcABAPMessageException: Key: , Code: RFC_ABAP_MESSAGE, Message: Name or password is incorrect (repeat logon)

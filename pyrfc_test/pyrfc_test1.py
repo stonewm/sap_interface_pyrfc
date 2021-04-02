@@ -3,8 +3,8 @@ import tablib
 
 conn_params = {
     "user": "stone",
-    "passwd": "123456",
-    "ashost": "192.168.44.100",
+    "passwd": "w123456",
+    "ashost": "sapecc6",
     "sysnr": "00",
     "lang": "EN",
     "client": "001"
