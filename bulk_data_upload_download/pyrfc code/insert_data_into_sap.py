@@ -22,7 +22,7 @@ def get_data_from_file(batch_max):
                 yield employees
                 employees =[]
                 batch = 0
-    if len(employees) > 0:
+    if len(employees) > 0: # 最后的数据
         yield employees
 
 
