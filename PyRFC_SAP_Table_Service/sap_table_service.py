@@ -4,6 +4,7 @@ from configparser import ConfigParser
 from collections import OrderedDict
 
 SECTION_NAME = "D01"
+# SECTION_NAME = "DFQ"
 COLS_AT_A_TIME = 5
 
 
@@ -13,7 +14,7 @@ def get_sap_logon_params(section_name):
     """
 
     config = ConfigParser()
-    config.read('sapnwrfc.cfg')
+    config.read('./.private/sapnwrfc.cfg')
 
     # logon_params is of type OrderedDict
     logon_params = config._sections[section_name]
@@ -103,8 +104,7 @@ class SapTableService(object):
         for idx in range(0, len(field_names), COLS_AT_A_TIME):
             selected_fields = field_names[idx: idx + COLS_AT_A_TIME]
             # 每次获取部分字段的数据
-            partial_data = self._get_table_contents(
-                table_name, selected_fields, delimiter, rowcount, rowskips, filter_criteria)
+            partial_data = self._get_table_contents(table_name, selected_fields, delimiter, rowcount, rowskips, filter_criteria)
 
             # 将数据整合在一起（纵向存放)
             line_idx = 1  # idx用于记录行号
@@ -167,42 +167,5 @@ class SapTableService(object):
             for data in self.read_bybatch(table_name, kwargs.get("rows_per_time"), kwargs.get("max_rows")):
                 for item in data:
                     f.write(item + '\n')
-
-
-
-# def get_data_by_batch(batch_count):
-#     """
-#     分批获取SAP数据，batch_count作为RFC_READ_TABLE的rowcount，
-#     rowskips也依据该参数变化
-#     """
-#     ROWS_AT_A_TIME = batch_count
-#     row_skips = 0
-#
-#     try:
-#         logon_params = get_sap_logon_params()
-#         sapconn = Connection(**logon_params)
-#
-#         while True:
-#             result = sapconn.call('RFC_READ_TABLE',
-#                                   QUERY_TABLE='TSTCT',
-#                                   DELIMITER=',',
-#                                   ROWSKIPS=row_skips,
-#                                   ROWCOUNT=ROWS_AT_A_TIME)
-#
-#             print(row_skips)
-#             row_skips += ROWS_AT_A_TIME
-#             yield result["DATA"]
-#             if len(result['DATA']) < ROWS_AT_A_TIME:
-#                 break
-#     except CommunicationError:
-#         print("Could not connect to server.")
-#         raise
-#     except LogonError:
-#         print("Could not log in. Wrong credentials?")
-#         raise
-#     except (ABAPApplicationError, ABAPRuntimeError):
-#         print("An error occurred.")
-#         raise
-
 
 
