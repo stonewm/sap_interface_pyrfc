@@ -18,28 +18,6 @@ def get_sap_logon_params():
     return logon_params
 
 
-class SapTableService(object):
-    def __init__(self):
-        self.sap_connection = Connection(**get_sap_logon_params())
-
-    def get_table_fields(self, table_name) -> list:
-        """
-        通过RFC_READ_TABLE读取SAP表的字段结构
-        :param table_name: table name
-        :return: list[str]
-        """
-        rv = []
-
-        try:
-            result = self.sap_connection.call('RFC_READ_TABLE',
-                                              QUERY_TABLE=table_name,
-                                              NO_DATA="X")
-            rv = result['FIELDS']
-        except (CommunicationError, LogonError):
-            raise
-
-        return rv
-
 def get_data_by_batch(batch_count):
     """
     分批获取SAP数据，batch_count作为RFC_READ_TABLE的rowcount，

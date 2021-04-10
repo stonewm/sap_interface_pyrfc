@@ -1,14 +1,13 @@
 from SAP.sap_systems import current_sap_connection
 from collections import OrderedDict
 
-BATCH_COL_COUNT = 5  # 单次读取的字段数量（batch column count）
-
+COLS_A_TIME = 5  # 单次读取的字段数量（column count a time）
 
 class SAPTableInfo(object):
     def __init__(self):
         self.sap_connection = current_sap_connection()
 
-    def read_table(self, sap_tablename, delimiter='~', rowcount=200, filter_criteria='') -> list:
+    def read_table(self, tablename, delimiter='~', rowcount=200, filter_criteria='') -> list:
         """
         读取SAP数据表的内容，返回list(dict)格式的数据
         
@@ -22,17 +21,18 @@ class SAPTableInfo(object):
         raw_data = []  # 返回的DATA参数内容，每一行是delimiter字面量分割的字符串
 
         # 获取SAP table的所有字段名
-        field_names = self.get_field_names(sap_tablename)
+        field_names = self.get_field_names(tablename)
 
-        # 为避免 DATA_BUFFER_EXCEEDED 错误，每次读取其中5个字段
-        for idx in range(0, len(field_names), BATCH_COL_COUNT):
-            batch_fields = field_names[idx: idx + BATCH_COL_COUNT]
+        # 为避免 DATA_BUFFER_EXCEEDED 错误，每次选取其中5个字段
+        for idx in range(0, len(field_names), COLS_A_TIME):
+            selected_fields = field_names[idx: idx + COLS_A_TIME]
             # 每次获得的partial_table_data为SAP table部分字段的数据
-            batch_data = self.get_table_contents(sap_tablename, batch_fields, delimiter, rowcount, filter_criteria)
+            partial_data = self.get_table_contents(
+                tablename, selected_fields, delimiter, rowcount, filter_criteria)
 
             # 将数据整合在一起（纵向存放)
             line_idx = 1  # idx用于记录行号
-            for item in batch_data:
+            for item in partial_data:
                 raw_data.append({str(line_idx): item.get("WA")})
                 line_idx += 1
 
