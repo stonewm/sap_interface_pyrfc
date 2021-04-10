@@ -9,6 +9,7 @@
 
 # folders
 ./
+.vs/
 .idea/
 .private/
 .vscode/
