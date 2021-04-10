@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 SECTION_NAME = "D01"
 # SECTION_NAME = "DFQ"
-COLS_AT_A_TIME = 5
+COLS_PER_TIME = 5
 
 
 def get_sap_logon_params(section_name):
@@ -101,8 +101,8 @@ class SapTableService(object):
         field_names = self._get_field_names(table_name)
 
         # 为避免 DATA_BUFFER_EXCEEDED 错误，每次选取其中5个字段
-        for idx in range(0, len(field_names), COLS_AT_A_TIME):
-            selected_fields = field_names[idx: idx + COLS_AT_A_TIME]
+        for idx in range(0, len(field_names), COLS_PER_TIME):
+            selected_fields = field_names[idx: idx + COLS_PER_TIME]
             # 每次获取部分字段的数据
             partial_data = self._get_table_contents(table_name, selected_fields, delimiter, rowcount, rowskips, filter_criteria)
 
