@@ -3,18 +3,18 @@ from pyrfc import ABAPApplicationError, ABAPRuntimeError, LogonError, Communicat
 from configparser import ConfigParser
 from collections import OrderedDict
 
-SECTION_NAME = "D01"
-# SECTION_NAME = "DFQ"
 COLS_PER_TIME = 5
-
+MAX_ROWS = 200
+ROWS_PER_TIME = 1000
+CONFIG_FILE = "sapnwrfc.cfg"
 
 def get_sap_logon_params(section_name):
     """
-    从sapnwrfc.cfg文件获取SAP登录参数
+    get SAP logon parameters from sapnwrfc.cfg file
     """
 
     config = ConfigParser()
-    config.read('./.private/sapnwrfc.cfg')
+    config.read(CONFIG_FILE)
 
     # logon_params is of type OrderedDict
     logon_params = config._sections[section_name]
@@ -24,15 +24,20 @@ def get_sap_logon_params(section_name):
 
 class SapTableService(object):
 
-    def __init__(self):
-        self.sap_connection = Connection(**get_sap_logon_params(SECTION_NAME))
+    def __init__(self, systemid):
+        """
+        :param systemid: configured in sapnwrfc.cft file
+        """
+
+        self.systemid = systemid
+        self.sap_connection = Connection(**get_sap_logon_params(systemid))
 
     def get_table_fields(self, table_name) -> list:
         """
-        通过 RFC_READ_TABLE 函数读取 SAP 表的字段结构
+        Get table structure via RFC_READ_ABLE function
 
         :param table_name: table name to query
-        :return: list[str]
+        :return: table fields of type list[str]
         """
 
         rv = []
@@ -48,18 +53,18 @@ class SapTableService(object):
 
     def _get_field_names(self, table_name) -> list:
         """
-        返回 table 所有字段名(fieldname)
+        get all field names from table_name parameter
 
         :param table_name: table name
-        :return: SAP表的所有字段，list类型
+        :return: all fields in a table, which is of type list
         """
         fields = self.get_table_fields(table_name)
         field_names = map(lambda x: x.get("FIELDNAME"), fields)
         return list(field_names)
 
-    def _get_table_contents(self, table_name, selected_fields, delimiter, rowcount, rowskips=0, filter_criteria=''):
+    def _get_table_contents(self, table_name, selected_fields, delimiter, rowcount, rowskips=0, where_options=''):
         options = list()
-        options.append({"TEXT": filter_criteria})
+        options.append({"TEXT": where_options})
 
         result = dict()
         try:
@@ -82,90 +87,102 @@ class SapTableService(object):
 
         return result["DATA"]
 
-    def read_table(self, table_name, delimiter=',', rowcount=200, rowskips=0, filter_criteria='') -> list:
+    def read_table(self, table_name, delimiter=',', rowcount=MAX_ROWS, rowskips=0, where_options='') -> list:
         """
-        读取SAP数据表的内容，返回list(dict)格式的数据
+        Get table data and returns a list of dict
 
         :param table_name: table name to be queried
         :param delimiter: delimiter will be used
         :param rowcount: row count of data output
         :param rowskips: row skips to select partial data
-        :param filter_criteria: filter criteria
+        :param where_options: filter criteria
         :return: list(dict) of DATA table paramter
         """
 
-        rv = []  # 函数返回值
-        raw_data = []  # 返回的DATA参数内容，每一行是delimiter字面量分割的字符串
+        rv = []        # method return value
 
-        # 获取SAP table的所有字段名
         field_names = self._get_field_names(table_name)
 
-        # 为避免 DATA_BUFFER_EXCEEDED 错误，每次选取其中5个字段
+        # -------------------------------------------------------------
+        # Using 5 fieds at a time to avoid DATA_BUFFER_EXCEEDED error
+        # -------------------------------------------------------------
+        raw_data = []  # raw data returned from RF_READ_TABLE, needing further processing
         for idx in range(0, len(field_names), COLS_PER_TIME):
             selected_fields = field_names[idx: idx + COLS_PER_TIME]
-            # 每次获取部分字段的数据
-            partial_data = self._get_table_contents(table_name, selected_fields, delimiter, rowcount, rowskips, filter_criteria)
+            partial_data = self._get_table_contents(
+                table_name, selected_fields, delimiter, rowcount, rowskips, where_options)
 
-            # 将数据整合在一起（纵向存放)
-            line_idx = 1  # idx用于记录行号
+            # appending data to raw_data and keep track of the line number
+            line_idx = 1  # line number
             for item in partial_data:
                 raw_data.append({str(line_idx): item.get("WA")})
                 line_idx += 1
 
-        # 上一步骤中line_idx标识了行号，依据line_idx将行数据横向合并
-        combined_lines = OrderedDict()  # 存放按行合并的dict
+        # -------------------------------------------------------------
+        # Merge raw_data based on row number
+        # -------------------------------------------------------------
+        combined_lines = OrderedDict()
         for line in raw_data:
             for k, v in line.items():
-                if k in combined_lines.keys():  # 如果行号存在，表示该行已有数据，则合并
-                    combined_lines[k] = combined_lines[k] + delimiter + v
-                else:
+                if k in combined_lines.keys():  # row number exists
+                    combined_lines[k] = combined_lines[k] + delimiter + v # merge
+                else: # row number does not exist
                     combined_lines[k] = v
 
-        # 去掉标识行号的key
+        # -------------------------------------------------------------
+        # Keep data and remove row numbers
+        # -------------------------------------------------------------
         for k, v in combined_lines.items():
             rv.append(v)
 
         return rv
 
-    def read_bybatch(self, table_name, rows_per_time, max_rows=10000):
+    def table_by_batch(self, table_name, rows_per_time, max_rows=MAX_ROWS, where_options=''):
         """
-        分批获取SAP数据，每次获取行数为 rows_per_time，
+        Get table data by batch, rows fetched every time  equal rows_per_time，
         """
-        row_skips = 0
 
+        row_skips = 0
         while True:
-            result = self.read_table(table_name,rowcount=rows_per_time,rowskips=row_skips)
-            print(f"{row_skips} lines read successfully...")
+            result = self.read_table(
+                table_name, rowcount=rows_per_time, rowskips=row_skips, where_options=where_options)
+
             row_skips += rows_per_time
+            data_have_read = row_skips - rows_per_time
+            if data_have_read > 0:
+                print(f"{data_have_read} lines read ...")
             yield result
 
             if max_rows != -1 and row_skips >= max_rows:
+                print(f"{max_rows} lines read successfully.")
                 break
+
             if len(result) < rows_per_time:
-                print(f"{row_skips + len(result)} lines read successfully.")
+                print(f"{data_have_read + len(result)} lines read successfully.")
                 break
 
     def to_csv(self, table_name, **kwargs):
         """
-        将table_name的数据导出到csv文件，包含文件头
+        Export table data to csv file including header inforamtion
 
         :param table_name: SAP table name to be output
         :param kwargs:contains<br/>
             <b>file_name</b>: output file name<br/>
             <b>rows_per_time</b>: rows to be output each time<br/>
-            <b>max_row</b>: default to 10,000, -1 for all data<br/>
+            <b>max_row</b>: default to 200 rows, -1 for all data<br/>
+            <b>where_options</b>: criteria in open sql where clause, should be less than 72 characters<br/>
         :return: None
         """
-        kwargs.setdefault("file_name", "output.csv")
-        kwargs.setdefault("rows_per_time", 1000)
-        kwargs.setdefault("max_rows", 10000)
+        file_name = kwargs.setdefault("file_name", "output.csv")
+        rows_per_time = kwargs.setdefault("rows_per_time", ROWS_PER_TIME)
+        max_rows = kwargs.setdefault("max_rows", MAX_ROWS)
+        where_options = kwargs.setdefault("where_options", '')
 
-        with open(kwargs.get("file_name"), mode='a', encoding='utf8') as f:
-            # header
+        with open(file_name, mode='a', encoding='utf8') as f:
+            # write header
             f.write(",".join(self._get_field_names(table_name)) + "\n")
-            # content
-            for data in self.read_bybatch(table_name, kwargs.get("rows_per_time"), kwargs.get("max_rows")):
+
+            # write table content
+            for data in self.table_by_batch(table_name, rows_per_time, max_rows, where_options):
                 for item in data:
                     f.write(item + '\n')
-
-
