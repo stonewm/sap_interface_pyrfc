@@ -16,12 +16,12 @@ def index():
 def get_acc_balances(cocd, account, year):
    
     sap_gl = SAPGL();
-    ac_balances = sap_gl.get_ac_balances(str.upper(cocd), account, year)
+    ac_balances = sap_gl.get_acc_balances(str.upper(cocd), account, year)
 
-    resp = make_response(ac_balances, 200)
-    resp.headers['Content-Type'] = 'application/json'    
+    # resp = make_response(ac_balances, 200)
+    # resp.headers['Content-Type'] = 'application/json'
 
-    return resp
+    return jsonify(ac_balances)
 
 
 @app.route("/acclist/<cocd>")
