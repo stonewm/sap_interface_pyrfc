@@ -1,0 +1,10 @@
+
+**** Log file opened at 2023-02-11 23:26:54.022092 UTC+08:00 (ÖÐ¹ú±ê×¼Ê±¼ä), Encoding UTF-8
+NW RFC Library: SDK variant, Release 750 Patch Level 8, Compiled on Apr 17 2021 03:23:42
+ CPIC library: 753.2020.03.230 version 3, NI library: 40, Kernel Release: 753 Patch Level 814
+ Current working directory: D:\Github Repositories\sap_interface_pyrfc\pyrfc_sap_table_explorer, Program: python
+ Hardware: PC with Windows NT 8x AMD64 Level 6 (Mod 140 Step 1), Operating_system: Windows NT 10.0
+ Hostname: LAPTOP-1VEJV1RM, IP address: 192.168.3.114, IPv6 address: fe80::931b:64fc:14ba:d5ed
+
+2023-02-11 23:26:54.023038 [10360] >> Info entry
+	Did not find config file D:\Github Repositories\sap_interface_pyrfc\pyrfc_sap_table_explorer\sapnwrfc.ini.
